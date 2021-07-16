@@ -52,13 +52,21 @@ if (isset($_POST['submit'])) {
 
     //further validation
     foreach ($errors as $field => $error) {
-        if ( $field == "email" and empty($error)) {
-            
-                if (!filter_var($fields[$field], FILTER_VALIDATE_EMAIL)) {
-                   $errors[$field] = "invalid email address"; 
-                // echo "invalid email";
+
+        //invalid email format
+        if ($field == "email" and empty($error)) {
+            if (!filter_var($fields[$field], FILTER_VALIDATE_EMAIL)) {
+                $errors[$field] = "invalid email address"; 
             }
+            
         }
+
+        //password mis-match 
+        if (($field == 'password-1' or $field == 'password-2') and $fields['password-1'] != $fields['password-2']) {
+            $errors[$field] = "password mismatch";
+        }
+
+        //other field verification
     }
     
 
