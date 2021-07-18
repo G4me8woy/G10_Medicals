@@ -1,4 +1,14 @@
 <?php   
+
+function isArrEmpty($arr){
+    foreach((array)$arr as $key => $value){
+        if (!empty($arr[$key])) {
+            return false;
+        }
+    }
+    return true;
+}
+
     $errors = array(
         'auth-id' => "", 
         'password' => ""
@@ -11,8 +21,11 @@
 
     if (isset($_POST['button'])) {
         //accepting input
-        $fields['auth-id'] = htmlspecialchars($_POST['auth-id']);
-        $fields['password'] =htmlspecialchars( $_POST['password']);
+        $auth_id = htmlspecialchars($_POST['auth-id']);
+        $password =htmlspecialchars( $_POST['password']);
+
+        $fields['auth-id'] = $auth_id;
+        $fields['password'] = $password;
 
         //validating emptiness
         if (empty($fields['auth-id'])) {
@@ -20,6 +33,33 @@
         }
         if (empty($fields['password'])) {
             $errors['password'] = " a password is required";
+        }
+
+
+        //connection to db
+        if (isArrEmpty($errors)) {
+            $conn = mysqli_connect('localhost', 'root', '', 'hospital_management_system');
+
+            // $statement = $conn->prepare("SELECT * FROM patients WHERE patient_id = ? AND  pswd = ?");
+            // $statement->bind_param('ss', $fields['auth-id'], $fields['password']);
+            // $statement->execute();
+
+            $sql = "SELECT patient_id, pswd FROM patients WHERE patient_id = '$auth_id' AND  pswd = '$password'";
+            $snapshot = $conn->query($sql);
+
+            if ($snapshot != false) {
+                if ($snapshot->num_rows > 0) {
+                    $result = mysqli_fetch_all($snapshot, MYSQLI_ASSOC);
+                    
+                    echo "valid login";
+
+                }
+                else {
+                    echo "invalid login";
+                }
+            }else {
+                echo "query error : ";
+            }
         }
     }
 
